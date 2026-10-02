@@ -63,6 +63,9 @@ Publish the package config with `php artisan vendor:publish --tag=laravel-glitch
 The package sets `send_default_pii`, `max_request_body_size` and the SQL binding options of the Sentry config
 based on the privacy mode. Configure them via the variables above, not in `config/sentry.php`.
 
+The enrichment and the credential filter run as Sentry `before_send` callback, i.e. after the SDK added
+request and user data. A `before_send` callback configured in `config/sentry.php` is still called afterwards.
+
 ### What is sent
 
 | Data | Privacy mode off | Privacy mode on |

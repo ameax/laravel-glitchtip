@@ -6,9 +6,7 @@ use Ameax\Glitchtip\Tests\Fixtures\FakeTenant;
 use Ameax\Glitchtip\Tests\Fixtures\FakeUser;
 use Illuminate\Session\ArraySessionHandler;
 use Illuminate\Session\Store;
-use Sentry\ClientBuilder;
 use Sentry\Event;
-use Sentry\State\Hub;
 use Sentry\UserDataBag;
 
 beforeEach(function () {
@@ -83,23 +81,4 @@ it('runs project specific enrichers', function () {
     Glitchtip::enrichUsing(fn () => throw new RuntimeException('must not break the event'));
 
     expect(($this->enrich)(Event::createEvent())->getTags())->toHaveKey('installation', 'kocher');
-});
-
-it('is registered as global sentry event processor', function () {
-    config(['glitchtip.privacy_mode' => true]);
-    $captured = null;
-
-    $client = ClientBuilder::create([
-        'dsn' => 'https://public@glitchtip.example/1',
-        'before_send' => function (Event $event) use (&$captured): ?Event {
-            $captured = $event;
-
-            return null;
-        },
-    ])->getClient();
-
-    (new Hub($client))->captureMessage('test');
-
-    expect($captured?->getTags())->toHaveKey('tenant', 'aratest')
-        ->and($captured?->getUser()?->getId())->toBe(42);
 });

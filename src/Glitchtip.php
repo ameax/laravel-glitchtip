@@ -2,8 +2,10 @@
 
 namespace Ameax\Glitchtip;
 
+use Ameax\Glitchtip\Enrichers\EventEnricher;
 use Illuminate\Contracts\Config\Repository;
 use Sentry\Event;
+use Sentry\EventHint;
 
 class Glitchtip
 {
@@ -56,5 +58,27 @@ class Glitchtip
         if (empty($config->get('sentry.release')) && $config->get('glitchtip.detect_release')) {
             $config->set('sentry.release', Release::detect($basePath));
         }
+
+        $beforeSend = $config->get('sentry.before_send');
+
+        if ($beforeSend !== [self::class, 'beforeSend']) {
+            $config->set([
+                'glitchtip.project_before_send' => $beforeSend,
+                'sentry.before_send' => [self::class, 'beforeSend'],
+            ]);
+        }
+    }
+
+    /**
+     * Sentry runs `before_send` after all event processors (request data, user etc.), so the
+     * enrichment and the credential filter see the complete event. A `before_send` callback
+     * configured by the project is called afterwards.
+     */
+    public static function beforeSend(Event $event, ?EventHint $hint = null): ?Event
+    {
+        $event = app(EventEnricher::class)->enrich($event);
+        $projectBeforeSend = config('glitchtip.project_before_send');
+
+        return is_callable($projectBeforeSend) ? $projectBeforeSend($event, $hint) : $event;
     }
 }
