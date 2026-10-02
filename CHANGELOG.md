@@ -2,6 +2,10 @@
 
 All notable changes to `laravel-glitchtip` will be documented in this file.
 
+## v0.1.3 - 2026-10-02
+
+- Fix: queued jobs reported their exception without tenant, because spatie/laravel-multitenancy forgets the tenant on `JobExceptionOccurred` before the worker reports the exception. The tenant of the running job is now remembered until the worker continues with the next job
+
 ## v0.1.2 - 2026-10-02
 
 - Fix: enrichment and credential filter now run as `before_send` callback. As global event processor they ran before the request integration of the SDK, so request data was neither filtered nor used for the client ip address
