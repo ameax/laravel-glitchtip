@@ -8,6 +8,7 @@ The package builds on the official [`sentry/sentry-laravel`](https://github.com/
 - **Release detection** without configuration: `REVISION` file written by [Deployer](https://deployer.org) or the checked out git commit
 - **Context on every event**: user id, locale, tenant ([spatie/laravel-multitenancy](https://github.com/spatie/laravel-multitenancy)) and the involved Livewire components
 - **Full client ip address** as resolved by Laravel (trusted proxies) instead of `REMOTE_ADDR`
+- **Credential filter**: passwords, tokens, the cookie header and other secrets are always replaced by `[Filtered]`
 - A hook to add project specific context
 
 Supports Laravel 10 to 13 and Livewire 3 and 4.
@@ -72,8 +73,18 @@ based on the privacy mode. Configure them via the variables above, not in `confi
 | Full client ip address, cookies, headers, session id | ✅ | ❌ |
 | User email and name | ✅ | ❌ |
 | Request body, SQL bindings, Livewire component data | ✅ | ❌ |
+| Passwords, tokens, secrets, cookie and authorization header, cookie values | ❌ | ❌ |
 
 Note: GlitchTip truncates ip addresses unless "Scrub IP addresses" is disabled in the project settings.
+
+### Credential filter
+
+Independent of the privacy mode, values of keys containing one of the `sensitive_keys` of the package config
+(`password`, `secret`, `token`, `api_key`, `authorization`, `cookie`, `csrf`, `signature`, ...) are replaced by
+`[Filtered]` in the request body, query string, url, headers and the Livewire context, including the Livewire
+snapshots in the request body. Cookie values are always filtered.
+
+Publish the config to adjust the list. Parameters of Livewire method calls are positional and therefore not filtered.
 
 ### Release detection
 

@@ -2,6 +2,7 @@
 
 namespace Ameax\Glitchtip\Enrichers;
 
+use Ameax\Glitchtip\Filters\SensitiveDataFilter;
 use Ameax\Glitchtip\Glitchtip;
 use Sentry\Event;
 use Sentry\UserDataBag;
@@ -12,12 +13,14 @@ use Throwable;
  *
  * Always: user id, locale, tenant and the Livewire components.
  * Only without privacy mode: the full client ip address, the session id and the Livewire component data.
+ * Credentials (passwords, tokens, cookie header ...) are always filtered.
  */
 class EventEnricher
 {
     public function __construct(
         private readonly TenantEnricher $tenantEnricher,
         private readonly LivewireEnricher $livewireEnricher,
+        private readonly SensitiveDataFilter $sensitiveDataFilter,
     ) {}
 
     public function enrich(Event $event): Event
@@ -41,6 +44,8 @@ class EventEnricher
                 continue;
             }
         }
+
+        $this->sensitiveDataFilter->filter($event);
 
         return $event;
     }

@@ -3,6 +3,7 @@
 namespace Ameax\Glitchtip;
 
 use Ameax\Glitchtip\Enrichers\EventEnricher;
+use Ameax\Glitchtip\Filters\SensitiveDataFilter;
 use Illuminate\Contracts\Config\Repository;
 use Sentry\Event;
 use Sentry\State\Scope;
@@ -25,6 +26,9 @@ class GlitchtipServiceProvider extends PackageServiceProvider
         Glitchtip::configureSentry($this->app->make(Repository::class), $this->app->basePath());
 
         $this->app->singleton(EventEnricher::class);
+        $this->app->singleton(SensitiveDataFilter::class, fn ($app): SensitiveDataFilter => new SensitiveDataFilter(
+            array_values(array_filter((array) $app['config']->get('glitchtip.sensitive_keys', []), 'is_string'))
+        ));
     }
 
     public function packageBooted(): void

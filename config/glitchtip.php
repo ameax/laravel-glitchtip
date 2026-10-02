@@ -22,4 +22,26 @@ return [
      */
     'detect_release' => (bool) env('SENTRY_DETECT_RELEASE', true),
 
+    /*
+     * Values of keys containing one of these parts (case insensitive) are always replaced
+     * by "[Filtered]": request body, query string, headers, cookies and Livewire data.
+     */
+    'sensitive_keys' => [
+        'password',
+        'passwd',
+        'secret',
+        'token',
+        'api_key',
+        'apikey',
+        'authorization',
+        'cookie',
+        'csrf',
+        'xsrf',
+        'signature',
+        'credit_card',
+        'card_number',
+        'cvv',
+        'cvc',
+    ],
+
 ];
