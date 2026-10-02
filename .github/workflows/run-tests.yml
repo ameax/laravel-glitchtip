@@ -1,0 +1,76 @@
+name: run-tests
+
+on:
+  push:
+    paths:
+      - '**.php'
+      - '.github/workflows/run-tests.yml'
+      - 'phpunit.xml.dist'
+      - 'composer.json'
+  pull_request:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - php: 8.2
+            laravel: 10.*
+            testbench: 8.*
+            livewire: 3.*
+            pest: 2.*
+          - php: 8.3
+            laravel: 11.*
+            testbench: 9.*
+            livewire: 3.*
+            pest: 3.*
+          - php: 8.4
+            laravel: 12.*
+            testbench: 10.*
+            livewire: 4.*
+            pest: 3.*
+          - php: 8.4
+            laravel: 13.*
+            testbench: 11.*
+            livewire: 4.*
+            pest: 4.*
+
+    name: P${{ matrix.php }} - L${{ matrix.laravel }} - LW${{ matrix.livewire }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          extensions: dom, curl, libxml, mbstring, zip, pdo, sqlite, pdo_sqlite
+          coverage: none
+
+      - name: Install dependencies
+        run: |
+          composer require "laravel/framework:${{ matrix.laravel }}" "orchestra/testbench:${{ matrix.testbench }}" "livewire/livewire:${{ matrix.livewire }}" "pestphp/pest:${{ matrix.pest }}" "pestphp/pest-plugin-laravel:${{ matrix.pest }}" --dev --no-interaction --no-update
+          composer update --prefer-stable --prefer-dist --no-interaction -W
+
+      - name: Execute tests
+        run: vendor/bin/pest --ci
+
+  phpstan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: 8.4
+          coverage: none
+      - run: composer install --prefer-dist --no-interaction
+      - run: vendor/bin/phpstan analyse --error-format=github

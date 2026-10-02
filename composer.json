@@ -1,0 +1,72 @@
+{
+    "name": "ameax/laravel-glitchtip",
+    "description": "Error tracking for Laravel with GlitchTip (or any Sentry compatible server): privacy mode, release detection for git and Deployer, and context for users, tenants and Livewire",
+    "keywords": [
+        "laravel",
+        "glitchtip",
+        "sentry",
+        "error-tracking",
+        "livewire",
+        "multitenancy",
+        "privacy"
+    ],
+    "homepage": "https://github.com/ameax/laravel-glitchtip",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Michael Schmidt",
+            "email": "ms@aranes.de",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "php": "^8.1",
+        "illuminate/contracts": "^10.0||^11.0||^12.0||^13.0",
+        "sentry/sentry-laravel": "^4.0",
+        "spatie/laravel-package-tools": "^1.16"
+    },
+    "require-dev": {
+        "larastan/larastan": "^2.9||^3.0",
+        "laravel/pint": "^1.14",
+        "livewire/livewire": "^3.0||^4.0",
+        "orchestra/testbench": "^8.0||^9.0||^10.0||^11.0",
+        "pestphp/pest": "^2.0||^3.0||^4.0",
+        "pestphp/pest-plugin-laravel": "^2.0||^3.0||^4.0",
+        "phpstan/extension-installer": "^1.3"
+    },
+    "suggest": {
+        "livewire/livewire": "Adds the involved Livewire components to error events (^3.0 or ^4.0)",
+        "spatie/laravel-multitenancy": "Adds the current tenant to error events"
+    },
+    "autoload": {
+        "psr-4": {
+            "Ameax\\Glitchtip\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Ameax\\Glitchtip\\Tests\\": "tests/"
+        }
+    },
+    "scripts": {
+        "analyse": "vendor/bin/phpstan analyse",
+        "test": "vendor/bin/pest",
+        "format": "vendor/bin/pint"
+    },
+    "config": {
+        "sort-packages": true,
+        "allow-plugins": {
+            "pestphp/pest-plugin": true,
+            "phpstan/extension-installer": true
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Ameax\\Glitchtip\\GlitchtipServiceProvider"
+            ]
+        }
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
+}
